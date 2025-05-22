@@ -8,6 +8,7 @@ window.onload = function() {
     let currentTurn = 'w';
     let selected = null;
     let selectedMoves = [];
+    let gameOver = false;
     const infoDiv = document.getElementById('info');
 
     const PIECES = {
@@ -72,28 +73,71 @@ window.onload = function() {
         board = init.map(r => r.slice());
     }
 
+    function computeAllMoves(color) {
+        let moves = [];
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const p = board[r][c];
+                if (p && p[0] === color) {
+                    moves.push(...getMoves(p, r, c, board));
+                }
+            }
+        }
+        return moves;
+    }
+
+    function findKing(color) {
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const p = board[r][c];
+                if (p && p[0] === color && p[1] === 'k') return { r, c };
+            }
+        }
+        return null;
+    }
+
+    function isAttacked(r, c, color) {
+        return computeAllMoves(color).some(m => m.r === r && m.c === c);
+    }
+
     function draw() {
-        // Board with highlights
+        const oppColor = currentTurn==='w' ? 'b' : 'w';
+        const allMoves = !gameOver ? computeAllMoves(currentTurn) : [];
+        const kingPos = findKing(currentTurn);
+        const inCheck = !gameOver && kingPos && isAttacked(kingPos.r, kingPos.c, oppColor);
+        if (inCheck && allMoves.length === 0) gameOver = true;
+        if (gameOver) {
+            infoDiv.textContent = 'Checkmate: ' + (currentTurn==='w'?'Black':'White') + ' wins';
+        } else if (inCheck) {
+            infoDiv.textContent = 'Check! Turn: ' + (currentTurn==='w'?'White':'Black');
+        } else {
+            infoDiv.textContent = 'Turn: ' + (currentTurn==='w'?'White':'Black');
+        }
+        // draw board with highlights
         for (let r=0; r<8; r++) {
             for (let c=0; c<8; c++) {
                 const x = c*size, y = r*size;
-                // draw square
                 ctx.fillStyle = (r+c)%2===0 ? lightColor : darkColor;
                 ctx.fillRect(x, y, size, size);
-                // highlight legal move
-                if (selectedMoves.find(m => m.r === r && m.c === c)) {
+                // highlight legal moves
+                if (allMoves.find(m => m.r===r && m.c===c)) {
                     ctx.fillStyle = 'rgba(0,255,0,0.3)';
                     ctx.fillRect(x, y, size, size);
                 }
-                // highlight selected piece
+                // highlight selected
                 if (selected && selected.r===r && selected.c===c) {
                     ctx.strokeStyle = 'yellow'; ctx.lineWidth = 4;
+                    ctx.strokeRect(x+2, y+2, size-4, size-4);
+                }
+                // highlight king in check
+                if (board[r][c] && board[r][c][1]==='k' && isAttacked(r, c, oppColor)) {
+                    ctx.strokeStyle = 'red'; ctx.lineWidth = 4;
                     ctx.strokeRect(x+2, y+2, size-4, size-4);
                 }
                 // draw piece
                 const p = board[r][c];
                 if (p) {
-                    ctx.fillStyle = p[0]==='w' ? 'white' : 'black';
+                    ctx.fillStyle = p[0]==='w'?'white':'black';
                     ctx.font = '48px serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
@@ -101,9 +145,18 @@ window.onload = function() {
                 }
             }
         }
+        // overlay game over
+        if (gameOver) {
+            ctx.fillStyle = 'rgba(0,0,0,0.6)';
+            ctx.fillRect(0, 0, size*8, size*8);
+            ctx.fillStyle = 'white'; ctx.font = '60px serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('Checkmate', size*4, size*4);
+        }
     }
 
     canvas.addEventListener('click', e => {
+        if (gameOver) return;
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -123,7 +176,6 @@ window.onload = function() {
                 board[r][c] = piece;
                 board[from.r][from.c] = null;
                 currentTurn = currentTurn==='w'?'b':'w';
-                infoDiv.textContent = 'Turn: ' + (currentTurn==='w'?'White':'Black');
             }
             selectedMoves = [];
             selected = null;
