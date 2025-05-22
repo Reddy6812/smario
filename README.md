@@ -35,6 +35,7 @@ Then visit `http://localhost:8080`.
 - Collectible stars (+10 score each)
 - Camera follows the player across the map
 - Automatic restart if you fall off the level
+- **Bike Race mini-game** accessible via the "Bike Race" button (arrow keys to move, R to restart)
 
 ## License
 
