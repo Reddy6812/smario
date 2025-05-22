@@ -16,4 +16,4 @@ open index.html
 
 ## Controls
 
-Use left and right arrow keys.
+Use left and right arrow keys to move, and up arrow to jump.
