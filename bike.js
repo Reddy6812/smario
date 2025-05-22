@@ -4,6 +4,9 @@ window.onload = function() {
     const width = canvas.width;
     const height = canvas.height;
     const bike = { x: width/2 - 25, y: height - 60, width: 50, height: 50, speed: 5 };
+    // Load realistic bike sprite
+    const bikeImg = new Image();
+    bikeImg.src = 'https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/color/72x72/1F6B2.png';
     let obstacles = [];
     let lastSpawn = Date.now();
     const spawnInterval = 1000;
@@ -46,8 +49,13 @@ window.onload = function() {
 
     function draw() {
         ctx.clearRect(0, 0, width, height);
-        ctx.fillStyle = 'blue';
-        ctx.fillRect(bike.x, bike.y, bike.width, bike.height);
+        // Draw bike image when ready, else fallback rectangle
+        if (bikeImg.complete) {
+            ctx.drawImage(bikeImg, bike.x, bike.y, bike.width, bike.height);
+        } else {
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(bike.x, bike.y, bike.width, bike.height);
+        }
 
         ctx.fillStyle = 'red';
         obstacles.forEach(o => ctx.fillRect(o.x, o.y, o.size, o.size));
