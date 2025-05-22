@@ -1,19 +1,41 @@
 # smario
 
-A simple Super Mario map scroller built with Phaser 3.
+Super Mario-style platformer built with Phaser 3.
 
-Live demo: https://reddy6812.github.io/smario
+Live demo: https://reddy6812.github.io/smario/
 
 ## Getting Started
 
-To run locally, clone the repo and open index.html:
+Clone the repository and navigate into it:
 
 ```
 git clone https://github.com/Reddy6812/smario.git
 cd smario
-open index.html
 ```
+
+Open `index.html` directly in your browser, or for best compatibility run a local HTTP server:
+
+```
+# using Python 3
+python3 -m http.server 8080
+# or using Node
+npx http-server . -p 8080
+```
+
+Then visit `http://localhost:8080`.
 
 ## Controls
 
-Use left and right arrow keys to move, and up arrow to jump.
+- Left/Right arrows: move
+- Up arrow: jump
+
+## Features
+
+- Tilemap-based level from Phaser labs
+- Collectible stars (+10 score each)
+- Camera follows the player across the map
+- Automatic restart if you fall off the level
+
+## License
+
+MIT
