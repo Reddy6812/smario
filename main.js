@@ -30,8 +30,8 @@ var game = new Phaser.Game(config);
 function preload() {
     this.load.tilemapTiledJSON('map', 'https://labs.phaser.io/assets/tilemaps/maps/super-mario.json');
     this.load.image('tiles', 'https://labs.phaser.io/assets/tilemaps/tiles/super-mario.png');
-    this.load.spritesheet('dude', 'https://labs.phaser.io/assets/dude.png', { frameWidth: 32, frameHeight: 48 });
-    this.load.image('star', 'https://labs.phaser.io/assets/star.png');
+    this.load.spritesheet('dude', 'https://labs.phaser.io/assets/sprites/dude.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.image('star', 'https://labs.phaser.io/assets/sprites/star.png');
 }
 
 function create() {
