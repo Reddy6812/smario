@@ -6,7 +6,7 @@ var config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 300 },
+            gravity: { y: 500 },
             debug: false
         }
     },
@@ -18,36 +18,29 @@ var config = {
 };
 
 var player;
-var platforms;
 var cursors;
+var map;
+var layer;
 
 var game = new Phaser.Game(config);
 
 function preload() {
-    this.load.image('sky', 'https://labs.phaser.io/assets/sky.png');
-    this.load.image('ground', 'https://labs.phaser.io/assets/platform.png');
-    this.load.image('star', 'https://labs.phaser.io/assets/star.png');
+    this.load.tilemapTiledJSON('map', 'https://labs.phaser.io/assets/tilemaps/maps/super-mario.json');
+    this.load.image('tiles', 'https://labs.phaser.io/assets/tilemaps/tiles/super-mario.png');
     this.load.spritesheet('dude', 'https://labs.phaser.io/assets/dude.png', { frameWidth: 32, frameHeight: 48 });
 }
 
 function create() {
-    // Background
-    this.add.image(400, 300, 'sky');
+    map = this.make.tilemap({ key: 'map' });
+    var tileset = map.addTilesetImage('SuperMarioBros-World1-1', 'tiles');
+    layer = map.createLayer('World1', tileset, 0, 0);
+    layer.setCollisionByExclusion([-1]);
 
-    // Platforms group
-    platforms = this.physics.add.staticGroup();
-    platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-    platforms.create(600, 400, 'ground');
-    platforms.create(50, 250, 'ground');
-    platforms.create(750, 220, 'ground');
-
-    // Player setup
-    player = this.physics.add.sprite(100, 450, 'dude');
-    player.setBounce(0.2);
+    player = this.physics.add.sprite(50, 450, 'dude');
+    player.setBounce(0.1);
     player.setCollideWorldBounds(true);
-    this.physics.add.collider(player, platforms);
+    this.physics.add.collider(player, layer);
 
-    // Animations
     this.anims.create({
         key: 'left',
         frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
@@ -66,8 +59,10 @@ function create() {
         repeat: -1
     });
 
-    // Input
     cursors = this.input.keyboard.createCursorKeys();
+
+    this.cameras.main.startFollow(player);
+    this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 }
 
 function update() {
@@ -82,7 +77,7 @@ function update() {
         player.anims.play('turn');
     }
 
-    if (cursors.up.isDown && player.body.touching.down) {
+    if (cursors.up.isDown && player.body.onFloor()) {
         player.setVelocityY(-330);
     }
 } 
