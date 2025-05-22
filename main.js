@@ -21,6 +21,9 @@ var player;
 var cursors;
 var map;
 var layer;
+var stars;
+var score = 0;
+var scoreText;
 
 var game = new Phaser.Game(config);
 
@@ -28,6 +31,7 @@ function preload() {
     this.load.tilemapTiledJSON('map', 'https://labs.phaser.io/assets/tilemaps/maps/super-mario.json');
     this.load.image('tiles', 'https://labs.phaser.io/assets/tilemaps/tiles/super-mario.png');
     this.load.spritesheet('dude', 'https://labs.phaser.io/assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.image('star', 'https://labs.phaser.io/assets/star.png');
 }
 
 function create() {
@@ -61,8 +65,28 @@ function create() {
 
     cursors = this.input.keyboard.createCursorKeys();
 
+    stars = this.physics.add.group({
+        key: 'star',
+        repeat: 11,
+        setXY: { x: 16, y: 0, stepX: 70 }
+    });
+    stars.children.iterate(function(child) {
+        child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+    });
+
+    this.physics.add.collider(stars, layer);
+    this.physics.add.overlap(player, stars, collectStar, null, this);
+
+    scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '18px', fill: '#fff' }).setScrollFactor(0);
+
     this.cameras.main.startFollow(player);
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+}
+
+function collectStar(player, star) {
+    star.disableBody(true, true);
+    score += 10;
+    scoreText.setText('Score: ' + score);
 }
 
 function update() {
@@ -79,5 +103,10 @@ function update() {
 
     if (cursors.up.isDown && player.body.onFloor()) {
         player.setVelocityY(-330);
+    }
+
+    if (player.y > map.heightInPixels + 100) {
+        score = 0;
+        this.scene.restart();
     }
 } 
